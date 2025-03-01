@@ -1,4 +1,3 @@
-import cmath as cm
 class Scomplex():
     def __init__(self,ybus,barras):
         self.__ybus = ybus
@@ -10,9 +9,9 @@ class Scomplex():
         for bk in dbar:
             pot = 0j
             for bm in dbar:
-                pot += bk.vb*bm.vb*self.__ybus[bk.indx][bm.indx]*cm.exp(-1j*(bk.ab-bm.ab))
+                ykm = self.__ybus[bk.indx][bm.indx]
+                pot += bk.Eb().conjugate() * ykm * bm.Eb()
             Sb.append(pot.conjugate())
-            
         return Sb
 
     def erros(self): 
@@ -21,66 +20,62 @@ class Scomplex():
         dbar = self.__barras.bars
         for barra in dbar:
             if barra.oetg == 1 or barra.oetg == 0:
-                pot = barra.pot - pots[barra.indx].real
+                pot = barra.spq.real - pots[barra.indx].real
                 potout.append(pot)
         for barra in dbar:
             if barra.oetg == 0:
-                pot = barra.qot - pots[barra.indx].imag
+                pot = barra.spq.imag - pots[barra.indx].imag
                 potout.append(pot)
         return potout
     
     def jacob(self):
         barras = self.__barras.bars
         rnb = range(self.__barras.nb)
-
-        dp = []
-        dq = []
-        for k in rnb:
-            if barras[k].oetg == 1 or barras[k].oetg == 0:
-                dp.append(k)
-        for k in rnb:
-            if barras[k].oetg == 0:
-                dq.append(k)
-
         sda = [[0 for ç in rnb] for ç in rnb]
-        for k in rnb:
-            skk = 0
-            for m in rnb:
-                sk = 0
-                if not k == m:
-                    sk = (-1j) *barras[k].vb*barras[m].vb *self.__ybus[k][m] *cm.exp((-1j)*(barras[k].ab - barras[m].ab))
-                skk -= sk.conjugate()
-                sda[k][m] = sk.conjugate()
-            sda[k][k] = skk
-
         sdv = [[0 for ç in rnb] for ç in rnb]
         for k in rnb:
-            skk = 0
+            sda[k][k] = 0j
+            sdv[k][k] = (2*barras[k].vb*self.__ybus[k][k])
             for m in rnb:
-                sk = 0
                 if not k == m:
-                    sk = -barras[k].vb *self.__ybus[k][m] *cm.exp((-1j)*(barras[k].ab - barras[m].ab))
-                else: 
-                    sk = -2*barras[k].vb*self.__ybus[k][k]
-
-                sdv[k][m] = -sk.conjugate()
-                skk += sk
-            sdv[k][k] = skk.conjugate()
+                    sda[k][m]  = ((1j)*self.__ybus[k][m]*(barras[k].Eb().conjugate())*(barras[m].Eb()))
+                    sda[k][k] -= sda[k][m]
+                    sdv[k][m]   = ((1/barras[k].vb)*self.__ybus[k][m]*(barras[k].Eb().conjugate())*(barras[m].Eb()))
+                    sdv[k][k] += sdv[k][m]
 
         jacs = []
-        for k in dp:
+        for k in self.pbars():
             lin = []
-            for m in dp:
-                lin.append(sda[k][m].real)
-            for m in dq:
-                lin.append(sdv[k][m].real)
+            for m in self.pbars():
+                lin.append(round(-sda[k][m].real,4))
+            for m in self.qbars():
+                lin.append(round(-sdv[k][m].real,4))
             jacs.append(lin)
-        for k in dq:
+            
+        for k in self.qbars():
             lin = []
-            for m in dp:
-                lin.append(sda[k][m].imag)
-            for m in dq:
-                lin.append(sdv[k][m].imag)
+            for m in self.pbars():
+                lin.append(round(sda[k][m].imag,4))
+            for m in self.qbars():
+                lin.append(round(sdv[k][m].imag,4))
             jacs.append(lin)
-        return jacs        
+        return jacs     
+       
+    def pbars(self):
+        barras = self.__barras.bars
+        rnb = range(self.__barras.nb)
+
+        dp = []
+        for k in rnb:
+            if barras[k].oetg == 1 or barras[k].oetg == 0:
+                dp.append(barras[k].indx)
+        return dp
     
+    def qbars(self):
+        barras = self.__barras.bars
+        rnb = range(self.__barras.nb)
+        dq = []
+        for k in rnb:
+            if barras[k].oetg == 0:
+                dq.append(barras[k].indx)
+        return dq
