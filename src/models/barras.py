@@ -5,7 +5,7 @@ class Barra():
     vbs = 1000
     zb = 100
     
-    def __init__(self,dados:list=None):
+    def __init__(self,dados, ref = [1.0 ,0.0]):
         self.__dados = dados if dados is not None else []
         self.indx = int(self.__dados[0]) -1
         self.oetg = int(self.__dados[1]) if self.__dados[1] is not ' ' else 0
@@ -13,10 +13,10 @@ class Barra():
         self.sh = (1j)*self.__dados[13]/(self.zb) if self.__dados[13] is not None else 0  
         self.vb:float
         self.ab:float
-        self.nilton()
+        self.nilton(ref)
         self.spq = self.sbar()/self.sb
         
-    def nilton(self,ref = [1.0 ,0.0]):
+    def nilton(self,ref):
         match self.oetg:
             case 0:
                 self.vb = ref[0]
@@ -50,9 +50,16 @@ class Barras():
         self.bars = self.novas_barras()
     def novas_barras(self):
         nBar = []
+        bref = [1.0 ,0.0]
         for ddbar in self.__dbar:
-            bar = Barra(ddbar)
+            bar = Barra(ddbar,bref)
+            if bar.oetg == 2: 
+                bref = [bar.vb, bar.ab]
+                break
+        for ddbar in self.__dbar:
+            bar = Barra(ddbar,bref)
             nBar.append(bar)
+
         return nBar
     def __str__(self,r=4):
         tx = ''

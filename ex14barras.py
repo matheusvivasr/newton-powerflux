@@ -7,6 +7,7 @@ barras,linhas = lerAna("IEEE_14B")
 ybus = linhas.ybus(barras)
 potencia = Scomplex(ybus,barras)
 
+print(barras)
 for i in range(13):
     err = potencia.erros()
     if max(abs(var) for var in err) < epslon: break
@@ -20,7 +21,7 @@ for i in range(13):
         sol.append(ss)
     barras.updatebar(sol)
 barras.update2(potencia.pots())
-
+print(f"iteracao de convergencia: {i+1}")
 print(barras)
 print()
 print(f"{i+1}: {max(abs(var) for var in err)}")
