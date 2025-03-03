@@ -8,7 +8,7 @@ class Barra():
     def __init__(self,dados, ref = [1.0 ,0.0]):
         self.__dados = dados if dados is not None else []
         self.indx = int(self.__dados[0]) -1
-        self.oetg = int(self.__dados[1]) if self.__dados[1] is not ' ' else 0
+        self.oetg = int(self.__dados[1]) if self.__dados[1] != ' ' else 0
         self.nome = self.__dados[2]
         self.sh = (1j)*self.__dados[13]/(self.zb) if self.__dados[13] is not None else 0  
         self.vb:float
@@ -27,6 +27,8 @@ class Barra():
             case 2:
                 self.vb = self.__dados[4]/self.vbs if self.__dados[4] is not None else 1
                 self.ab = pi*(self.__dados[5])/180 if self.__dados[5] is not None else 0
+        # self.vb = self.__dados[4]/self.vbs if self.__dados[4] is not None else 1
+        # self.ab = pi*(self.__dados[5])/180 if self.__dados[5] is not None else 0
         pass
 
     def Eb(self): return self.vb*cm.exp(1j*self.ab)
@@ -41,7 +43,7 @@ class Barra():
 
 
     def __str__(self,r=4):
-        return f"({self.indx+1})\t[{round(self.vb,r)} {round(self.ab,r)} {round(self.spq.real,r)} {round(self.spq.imag,r)}]"
+        return f"({self.indx+1})\t[{round(self.vb,r)} {round(180*(self.ab)/pi,r)} {round(self.spq.real,r)} {round(self.spq.imag,r)}]"
 
 class Barras():
     def __init__(self,dbar:list=None):
@@ -61,10 +63,10 @@ class Barras():
             nBar.append(bar)
 
         return nBar
-    def __str__(self,r=4):
+    def __str__(self,r=3):
         tx = ''
         for barra in self.bars:
-            tx += f"({barra.indx+1})\t[{round(barra.vb,r)} {round(barra.ab,r)} {round(barra.spq.real,r)} {round(barra.spq.imag,r)}]\n"
+            tx += f"({barra.indx+1})\t[{round(barra.vb,2)} {round(180*(barra.ab)/pi,1)} {round(barra.spq.real,r)} {round(barra.spq.imag,r)}]\n"
         return tx       
     def updatebar(self,vec:list):
         ctt = 0
