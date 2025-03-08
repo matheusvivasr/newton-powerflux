@@ -19,11 +19,11 @@ class Scomplex():
         pots = self.pots() 
         dbar = self.__barras.bars
         for barra in dbar:
-            if barra.oetg == 1 or barra.oetg == 0:
+            if barra.tipo == 1 or barra.tipo == 0:
                 pot = barra.spq.real - pots[barra.indx].real
                 potout.append(pot)
         for barra in dbar:
-            if barra.oetg == 0:
+            if barra.tipo == 0:
                 pot = barra.spq.imag - pots[barra.indx].imag
                 potout.append(pot)
         return potout
@@ -67,7 +67,7 @@ class Scomplex():
 
         dp = []
         for k in rnb:
-            if barras[k].oetg == 1 or barras[k].oetg == 0:
+            if barras[k].tipo == 1 or barras[k].tipo == 0:
                 dp.append(barras[k].indx)
         return dp
     
@@ -76,6 +76,6 @@ class Scomplex():
         rnb = range(self.__barras.nb)
         dq = []
         for k in rnb:
-            if barras[k].oetg == 0:
+            if barras[k].tipo == 0:
                 dq.append(barras[k].indx)
         return dq

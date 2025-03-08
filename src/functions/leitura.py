@@ -17,8 +17,10 @@ def lerAna(file:str='IEEE_TTB'):
 def barras(conteudo):
     rgx = r"DBAR(.*?)99999\n"
     tabela = re.search(rgx, conteudo, re.DOTALL).group(1).split('\n')
-    rgx = r"((\(\w*\))|((?<=\))\w+(?=\())|(\(\s*\w+\s*\)))"
-    head = [len(a[0]) for a in re.findall(rgx,tabela[1])]
+    # FAVOR ATUALIZAR AQUI CASO DE MERDA \/
+    rgx = r"((\(\w*\))|((?<=\))\w+(?=\())|((?<=\))\w+))"
+    head = "(aaa)aaaaa(aaaaaaaaaa)aa(aa)(aa)(aaa)(aaa)(aaa)(aaa)(aaaa)(aaa)(aaa)(aaa)aaa(aa)"
+    head = [len(a[0]) for a in re.findall(rgx,head)]
 
     tabela = tabela[2:-1]
     ntabela = []
@@ -31,7 +33,7 @@ def barras(conteudo):
             try: v = float(v)
             except ValueError: 
                 if v == '': v= None
-                else: v = linha[ini:fim].strip()
+                else: v = linha[ini:fim]
 
             nlinha.append(v)
             ini = fim
