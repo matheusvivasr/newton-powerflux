@@ -14,6 +14,7 @@ class Barra():
         self.operac:int
         self.estado:int
         self.tipo:int
+        self.tpo:int
         self.vb:float
         self.ab:float
         self.sh:complex
@@ -41,6 +42,7 @@ class Barra():
         if tipo.isdigit(): tipo = int(tipo)
         else: tipo = 0
         self.tipo = tipo
+        self.tpo = tipo
         pass
 
     def nilton(self,ref):
