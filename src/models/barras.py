@@ -16,6 +16,7 @@ class Barra():
         self.tipo:int
         self.tpo:int
         self.vb:float
+        self.vesp:float
         self.ab:float
         self.sh:complex
 
@@ -53,12 +54,15 @@ class Barra():
         match self.tipo:
             case 0:
                 self.vb = ref[0]
+                self.vesp = ref[0]
                 self.ab = ref[1]
             case 1:
                 self.vb = self.__dados[4]/self.vbs if self.__dados[4] is not None else 1
+                self.vesp = self.__dados[4]/self.vbs if self.__dados[4] is not None else 1
                 self.ab = ref[1]
             case 2:
                 self.vb = self.__dados[4]/self.vbs if self.__dados[4] is not None else 1
+                self.vesp = self.__dados[4]/self.vbs if self.__dados[4] is not None else 1
                 self.ab = pi*(self.__dados[5])/180 if self.__dados[5] is not None else 0
         pass
 
@@ -76,15 +80,48 @@ class Barra():
         limmin = self.__dados[8] if self.__dados[8] is not None else -9999
         limmax = self.__dados[9] if self.__dados[9] is not None else 9999
         return [limmin/self.sb, limmax/self.sb]
+    
+    def limitV(self): pass #WIP
 
     def __str__(self,r=4):
         return f"({self.indx+1})\t[{round(self.vb,r)} {round(self.ab,r)} {round(self.spq.real,r)} {round(self.spq.imag,r)}]"
+
+    def vaiPQ(self):
+        bola = False
+        if self.tipo == 1: 
+            qb = self.spq.imag
+            ql = self.rngQ
+            if (qb < ql[0]) or (qb > ql[1]): 
+                bola = True
+                self.tipo = 0
+            if qb < ql[0]: qb = ql[0]
+            if qb > ql[1]: qb = ql[1]
+            self.spq = self.spq.real +1j*qb
+        return bola
+
+    def voltaPV(self):
+        bola = False
+        if self.tipo == 0 and self.tpo == 1:
+            bola = True
+            qb = self.spq.imag
+            ql = self.rngQ
+            if (qb == ql[0]) and (self.vb < self.vesp):
+                self.tipo = 1
+                bola = False
+                self.vb = self.vesp
+            if (qb == ql[1]) and (self.vb > self.vesp):
+                self.tipo = 1
+                bola = False
+                self.vb = self.vesp
+        return bola
+
 
 class Barras():
     def __init__(self,dbar:list=None):
         self.__dbar = dbar if dbar is not None else []
         self.nb = len(self.__dbar)
         self.bars = self.novas_barras()
+
     def novas_barras(self):
         nBar = []
         bref = [1.0 ,0.0]
@@ -96,13 +133,23 @@ class Barras():
         for ddbar in self.__dbar:
             bar = Barra(ddbar,bref)
             nBar.append(bar)
-
         return nBar
+    
+    def controlar(self):
+        out = True
+        for barra in self.bars:
+            pq = barra.vaiPQ()
+            pv = barra.voltaPV()
+            p  = not (pq or pv)
+            out =  p and out
+        return out
+
     def __str__(self,r=1):
         tx = ''
         for barra in self.bars:
             tx += f"({barra.indx+1})\t[{round(barra.vb*barra.vbs,r)} {round(180*(barra.ab)/pi,1)} {round(barra.spq.real*barra.sb,r)} {round(barra.spq.imag*barra.sb,r)}]\n"
-        return tx       
+        return tx 
+          
     def updatebar(self,vec:list):
         ctt = 0
         for k in range(self.nb):
@@ -116,6 +163,7 @@ class Barras():
                 self.bars[k].vb += vec[ctt]
                 ctt+=1
         return self.bars
+    
     def update2(self,vec2:list):
         for k in range(self.nb):
             if self.bars[k].tipo == 1:

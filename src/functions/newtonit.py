@@ -4,9 +4,25 @@ from numpy import linalg
 def newt_raph(barras,linhas,eps):
     ybus = linhas.ybus(barras)
     potencia = Scomplex(ybus,barras)
-    for i in range(19):
+
+    err = potencia.erros()
+    jac = potencia.jacob()
+    ijac = -linalg.inv(jac)
+    sol = []
+    for lin in ijac.tolist():
+        ss = 0
+        for k in range(len(lin)):
+            ss+= lin[k]*err[k]
+        sol.append(ss)
+    barras.updatebar(sol)
+
+    for ç in range(100):
+        proba = barras.controlar()
         err = potencia.erros()
-        if max(abs(var) for var in err) < eps: break
+        probb = (max(abs(var) for var in err)< eps)
+        
+        if   probb and proba: break
+        
         jac = potencia.jacob()
         ijac = -linalg.inv(jac)
         sol = []
@@ -15,6 +31,9 @@ def newt_raph(barras,linhas,eps):
             for k in range(len(lin)):
                 ss+= lin[k]*err[k]
             sol.append(ss)
+        
         barras.updatebar(sol)
-    barras.update2(potencia.pots())
+        barras.update2(potencia.pots())
+        
+        if ç == 98: print("maximo de iteracoes")
     return barras
