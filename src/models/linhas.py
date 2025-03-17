@@ -69,7 +69,7 @@ class Linhas():
     def __str__(self):
         out =  ''
         for linm in self.lins:
-            out += f"{[ind+1 for ind in linm.lin]}: {redondo(linm.yl)}, {linm.tap}, {redondo(linm.sh)}\n"
+            out += f"{[ind+1 for ind in linm.lin]}: {redondo(linm.yl)}, {round(linm.tap,4)}, {redondo(linm.sh)}\n"
         return out
     
 def redondo(num=0):

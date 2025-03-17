@@ -16,7 +16,7 @@ def newt_raph(barras,linhas,eps):
         sol.append(ss)
     barras.updatebar(sol)
 
-    for ç in range(100):
+    for ç in range(1000):
         proba = barras.controlar()
         err = potencia.erros()
         probb = (max(abs(var) for var in err)< eps)
@@ -35,5 +35,5 @@ def newt_raph(barras,linhas,eps):
         barras.updatebar(sol)
         barras.update2(potencia.pots())
         
-        if ç == 98: print("maximo de iteracoes")
+        if ç == 998: print("maximo de iteracoes")
     return barras

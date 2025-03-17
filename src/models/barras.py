@@ -66,14 +66,16 @@ class Barra():
                 self.ab = pi*(self.__dados[5])/180 if self.__dados[5] is not None else 0
         pass
 
-    def Eb(self): return self.vb*cm.exp(1j*self.ab)
+    def Eb(self): 
+        if self.ab == 0: return self.vb
+        else: return self.vb*cm.exp(1j*self.ab)
 
     def sbar(self):
         Pger = self.__dados[6] if self.__dados[6] is not None else 0
-        Qger = self.__dados[7] if self.__dados[7] is not None else 0
+        Qger = 0
         Pdem = self.__dados[11] if self.__dados[11] is not None else 0
         Qdem = self.__dados[12] if self.__dados[12] is not None else 0
-        potencia = (Pger-Pdem) +1j*(Qger-Qdem)
+        potencia = (Pger-Pdem) -1j*(Qger-Qdem)
         return potencia
 
     def limitQ(self):
@@ -91,11 +93,14 @@ class Barra():
         if self.tipo == 1: 
             qb = self.spq.imag
             ql = self.rngQ
+
             if (qb < ql[0]) or (qb > ql[1]): 
                 bola = True
                 self.tipo = 0
+
             if qb < ql[0]: qb = ql[0]
             if qb > ql[1]: qb = ql[1]
+
             self.spq = self.spq.real +1j*qb
         return bola
 
@@ -105,14 +110,17 @@ class Barra():
             bola = True
             qb = self.spq.imag
             ql = self.rngQ
-            if (qb == ql[0]) and (self.vb < self.vesp):
+
+            if (qb <= ql[0]) and (self.vb < self.vesp):
                 self.tipo = 1
                 bola = False
                 self.vb = self.vesp
-            if (qb == ql[1]) and (self.vb > self.vesp):
+
+            if (qb >= ql[1]) and (self.vb > self.vesp):
                 self.tipo = 1
                 bola = False
                 self.vb = self.vesp
+
         return bola
 
 

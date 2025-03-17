@@ -2,16 +2,27 @@ class Scomplex():
     def __init__(self,ybus,barras):
         self.__ybus = ybus
         self.__barras = barras
-        
+
+    def correntes(self):
+        Ib = []
+        barras = self.__barras.bars
+        yy = self.__ybus
+        for k in range(self.__barras.nb):
+            Ik = 0
+            for m in range(self.__barras.nb):
+               if yy[k][m] != 0:
+                Ikm = barras[m].Eb() * yy[k][m] 
+                Ik += Ikm
+            Ib.append(Ik)
+        return Ib
+    
     def pots(self):
-        Sb = []
+        Ik = self.correntes()
+        Sb = [0 for ç in range(len(Ik))]
         dbar = self.__barras.bars
-        for bk in dbar:
-            pot = 0j
-            for bm in dbar:
-                ykm = self.__ybus[bk.indx][bm.indx]
-                pot += bk.Eb().conjugate() * ykm * bm.Eb()
-            Sb.append(pot.conjugate())
+
+        for k in range(self.__barras.nb):
+            Sb[k] = dbar[k].Eb() * Ik[k].conjugate()
         return Sb
 
     def erros(self): 
@@ -26,6 +37,14 @@ class Scomplex():
             if barra.tipo == 0:
                 pot = barra.spq.imag - pots[barra.indx].imag
                 potout.append(pot)
+        return potout
+    
+    def erros2(self): 
+        potout = [0j for ç in range(self.__barras.nb)]
+        pots = self.pots() 
+        dbar = self.__barras.bars
+        for k in range(self.__barras.nb):
+            potout[k] = dbar[k].spq - pots[k]
         return potout
     
     def jacob(self):
